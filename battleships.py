@@ -132,8 +132,8 @@ class Battleships:
         return False
 
     def available_moves(self):
-        indices = np.moveaxis(np.indices(self.state[self.player_state, 0].shape), 0, -1)
-        return indices[np.abs(self.state) != 1]
+        indices = np.moveaxis(np.indices(self.state[self.player_state, 1].shape), 0, -1)
+        return indices[self.state[self.player_state, 1] == 0]
 
     # TODO
     """
