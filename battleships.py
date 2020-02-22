@@ -4,7 +4,7 @@ from copy import deepcopy
 
 class Battleships:
 
-    def __init__(self):
+    def __init__(self, loud = False):
 
         # make sure game is well defined
 
@@ -18,6 +18,7 @@ class Battleships:
         self.opposite_player_state = 1
         self.last_move = None
         self.n_moves = 0
+        self.loud = loud
 
     # TODO fast deepcopy
     def __copy__(self):
@@ -34,6 +35,7 @@ class Battleships:
         new_game.last_move = self.last_move
         new_game.player = self.player
         new_game.score = self.score
+        new_game.loud = self.loud
         return new_game
 
     # check victory condition
@@ -102,9 +104,12 @@ class Battleships:
 
                     if self.ships_remaining[self.opposite_player_state,
                                             self.ship_positions[self.opposite_player_state][(i, j)]] > 0:
-                        print("A ship has been hit")
+                        if self.loud: print("A ship has been hit")
                     else:
-                        print("A ship has been sunk")
+                        if self.loud:
+                            sunk = ['n Aircraft Carrier', ' Battleship', ' Cruiser', ' Submarine', ' Destroyer']\
+                                   [self.ship_positions[self.opposite_player_state][(i, j)]]
+                            print('A' + sunk + " has been sunk")
                 # if miss
                 else:
                     self.state[self.player_state, 1, i, j] = -1
@@ -120,7 +125,7 @@ class Battleships:
 
                 else:
                     # TODO the player has won, time to stop
-                    print(self.player, "won!")
+                    if self.loud: print(f"Player {max(-self.player, 0) + 1} has won!")
 
                 return True
 
