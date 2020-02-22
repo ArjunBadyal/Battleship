@@ -1,5 +1,5 @@
 import numpy as np
-from copy import copy
+from copy import deepcopy
 
 
 class Battleships:
@@ -25,10 +25,10 @@ class Battleships:
         new_game = cls.__new__(cls)
         new_game.__dict__.update(self.__dict__)
 
-        new_game.ships_remaining = np.tile(np.array([5, 4, 3, 3, 2], dtype=np.float), (2, 1))
-        new_game.ship_positions = {}, {}
-        new_game.player = 1
-        new_game.player_state = 0
+        new_game.ships_remaining = self.ships_remaining.copy()
+        new_game.ship_positions = deepcopy(self.ship_positions)
+        new_game.player = self.player
+        new_game.player_state = self.player_state
         new_game.state = self.state.copy()
         new_game.n_moves = self.n_moves
         new_game.last_move = self.last_move
