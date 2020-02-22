@@ -113,6 +113,7 @@ class Battleships:
                 # if miss
                 else:
                     self.state[self.player_state, 1, i, j] = -1
+                    if self.loud: print("Missed")
 
                 self.n_moves += 1
                 self.last_move = tuple((i, j))
