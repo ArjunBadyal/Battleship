@@ -34,6 +34,7 @@ def play(player1Factory, player2Factory):
         p2.attackShips()
         if game.score is not None: break  #Player 2 win
 
+    if not game.loud: print(f"Player {max(-game.player, 0) + 1} has won!")
     print(f"Game ended after {game.n_moves // 2} turns")
 
 if __name__ == "__main__":
