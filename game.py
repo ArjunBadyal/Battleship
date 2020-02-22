@@ -1,31 +1,44 @@
 from battleships import Battleships as Game
+from engines import InteractiveEngine, RandomEngine
 
-def play():
+#   _____   _                       _                     _           _                                                 
+#  / ____| | |                     | |                   (_)         | |                                                
+# | (___   | |__     ___     ___   | |_   _   _     ___   _   _ __   | | __  _   _      __ _    __ _   _ __ ___     ___ 
+#  \___ \  | '_ \   / _ \   / _ \  | __| | | | |   / __| | | | '_ \  | |/ / | | | |    / _` |  / _` | | '_ ` _ \   / _ \
+#  ____) | | | | | | (_) | | (_) | | |_  | |_| |   \__ \ | | | | | | |   <  | |_| |   | (_| | | (_| | | | | | | | |  __/
+# |_____/  |_| |_|  \___/   \___/   \__|  \__, |   |___/ |_| |_| |_| |_|\_\  \__, |    \__, |  \__,_| |_| |_| |_|  \___|
+#                                          __/ |                              __/ |     __/ |                           
+#                                         |___/                              |___/     |___/
+
+def play(player1Factory, player2Factory):
+    """Play a game of Battleships
+        player1Factory and player2Factory should be functions capable of turning
+        a Battleships instance into an Engine for their respective players
+    """
     game = Game()
 
-    #p1 =input("place your ships")
-    #p1 = eval(p1)
-    p1= [(1,1), (1,2), (1,3), (1,4), (1,5)]
-    game.place(p1, [False for _ in range(5)])
+    #Construct the two players from the given Engine factories
+    p1 = player1Factory(game)
+    p2 = player2Factory(game)
 
-    #p2 = input("place your ships")
-    #p2 = eval(p2)
-    p2 = [(1, 1), (1, 2), (1, 3), (1, 4), (1, 5)]
-    game.place(p2, [False for _ in range(5)])
+    #Get each engine to place down its ships
+    p1.placeShips()
+    p2.placeShips()
 
     while True:
-        #game.fire(eval(input("player " + str(game.player) + " fire")))
-        for i in range(1, 6):
-            for j in range(1, 6):
-                game.fire([i, j])
-                game.fire([i, j])
-        print("We said game over")
-        break
+        game.loud = p1.isTalkative()
+        p1.attackShips()
+        if game.score is not None: break  #Player 1 win
 
-play()
+        game.loud = p2.isTalkative()
+        p2.attackShips()
+        if game.score is not None: break  #Player 2 win
 
+    print(f"Game ended after {game.n_moves // 2} turns")
 
-
+if __name__ == "__main__":
+    # TODO: Make one of these an InteractiveEngine so we can play along
+    play(RandomEngine, RandomEngine)
 
 
 
