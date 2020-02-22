@@ -74,6 +74,7 @@ class Battleships:
                 if coord not in self.ship_positions[self.player_state] and 10 > coord[0] >= 0 and 10 > coord[1] >= 0:
                     self.ship_positions[self.player_state][coord] = i
                 else:
+                    self.ship_positions[self.player_state].clear()
                     return False
 
         # all the ship coordinates are valid, time to place them
