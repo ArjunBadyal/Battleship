@@ -144,3 +144,22 @@ class RandomEngine(Engine):
 
             #If the random choice is good, that's all we need
             if self.game.fire((x, y)): break
+
+
+class CompoundEngine(Engine):
+    """An engine which delegates placement and attacking to different (provided) engines"""
+    @classmethod
+    def withEngines(cls, placerFactory, attackerFactory):
+        return lambda game: cls(game, placerFactory(game), attackerFactory(game))
+
+    def __init__(self, game, placer, attacker):
+        super().__init__(game)
+
+        self.placer = placer
+        self.attacker = attacker
+
+    def placeShips(self):
+        self.placer.placeShips()
+
+    def attackShips(self):
+        self.attacker.attackShips()
