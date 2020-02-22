@@ -1,9 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import matplotlib.animation as animation
 from copy import copy
 
 
@@ -23,7 +18,6 @@ class Battleships:
         self.opposite_player_state = 1
         self.last_move = None
         self.n_moves = 0
-        self.switched_side = False
 
     # TODO fast deepcopy
     def __copy__(self):
@@ -36,7 +30,6 @@ class Battleships:
         new_game.player = 1
         new_game.player_state = 0
         new_game.state = self.state.copy()
-        new_game.switched_side = self.switched_side
         new_game.n_moves = self.n_moves
         new_game.last_move = self.last_move
         new_game.player = self.player
@@ -46,8 +39,6 @@ class Battleships:
     # check victory condition
     # fast version
     def get_score(self):
-        # TODO i, j = self.last_move
-
         # game can't have finished if we've not played enough rounds to hit all the ships
         if self.n_moves < 2 * 17:  # no magic numbers here: 5+4+3+3+2 = 17
             return None
