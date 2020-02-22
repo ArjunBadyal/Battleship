@@ -37,8 +37,7 @@ def play(player1Factory, player2Factory):
     print(f"Game ended after {game.n_moves // 2} turns")
 
 if __name__ == "__main__":
-    # TODO: Make one of these an InteractiveEngine so we can play along
-    play(RandomEngine, RandomEngine)
+    play(InteractiveEngine, RandomEngine)
 
 
 

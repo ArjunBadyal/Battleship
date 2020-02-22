@@ -47,7 +47,7 @@ class InteractiveEngine(Engine):
             if match is not None: break
 
         #match[0] contains the whole match, captured groups start from 1
-        return match[1], match[2]
+        return int(match[1]), int(match[2])
 
     def promptBoolean(self, prompt = ""):
         """Get a yes/no type answer from the console"""
@@ -100,14 +100,17 @@ class InteractiveEngine(Engine):
                 coords = self.promptCoords("Enter coordinates: ")
                 down = self.promptBoolean("Place downwards/sideways? Yes/No: ")
 
-                if self.canFit(occupied, boat, coords, down): break
+                if self.canFit(occupied, length, coords, down): break
                 print("Unable to place ship there")
+
+            boats.append(coords)
+            directions.append(down)
 
             print("Current board:")
             ships = dict(zip(occupied, chain(repeat('A', 5), repeat('B', 4), repeat('C', 3),
                                              repeat('S', 3), repeat('D', 2))))
-            for y in range(10): #Print a grid of the current board
-                print('[' + "] [".join((ships.get((x, y), ' ') for x in range(10))) + ']')
+            for y in range(9, -1, -1): #Print a grid of the current board
+                print('[' + "] [".join(ships.get((x, y), ' ') for x in range(10)) + ']')
             print()
 
         placed = self.game.place(boats, directions)
@@ -116,7 +119,21 @@ class InteractiveEngine(Engine):
     def attackShips(self):
         options = self.game.available_moves()
 
-        raise NotImplementedError("# TODO: Finish me")
+        print("\nCurrent board:")
+        for layer in self.opponentsShips()[::-1]:
+            print('[' + "] [".join(['O', '?', 'X'][int(status) + 1] for status in layer) + ']')
+
+        while True:
+            coords = self.promptCoords("Enter coordinates at hit: ")
+            if any((coords == option).all() for option in options): break
+
+            if 10 > coords[0] >= 0 and 10 > coords[1] >= 0:
+                print("Those coordinates have already been attacked")
+            else:
+                print("Those coordinates are not on the board")
+
+        attacked = self.game.fire(coords)
+        assert attacked, "Available move wasn't actually available?"
 
 
 class RandomEngine(Engine):
