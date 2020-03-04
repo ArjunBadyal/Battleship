@@ -1,6 +1,7 @@
 from random import random, randrange
 from itertools import chain, repeat
 from abc import ABC, abstractmethod
+from numpy import transpose
 from re import search
 
 
@@ -120,7 +121,7 @@ class InteractiveEngine(Engine):
         options = self.game.available_moves()
 
         print("\nCurrent board:")
-        for layer in self.opponentsShips()[::-1]:
+        for layer in transpose(self.opponentsShips())[::-1]:
             print('[' + "] [".join(['O', '?', 'X'][int(status) + 1] for status in layer) + ']')
 
         while True:
