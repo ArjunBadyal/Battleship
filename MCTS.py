@@ -11,7 +11,6 @@ import random
 c = 1.0
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = 'cpu'
 
 
 def process_policy(policy, game):
@@ -21,6 +20,7 @@ def process_policy(policy, game):
     #fire_state = game.state[game.player_state,1]
     frame = torch.tensor(fire_state, dtype=torch.float, device=device)
     input = frame.unsqueeze(0)
+    input = input.cuda()
     prob, v = policy(input)
     mask = torch.tensor(game.available_mask(), dtype=torch.bool)
 
@@ -56,11 +56,11 @@ class Node:
         # this is for speeding the tree-search up
         # but stopping exploration when the outcome is certain
         # and there is a known perfect play
-        self.outcome = self.game.score
+        self.outcome = self.game.score 
 
         # if game is won/loss/draw
         if self.game.score is not None:
-            self.V = self.game.player
+            self.V = self.game.player * self.game.score
             self.U = self.V * float('inf')
 
         # link to previous node
@@ -109,7 +109,7 @@ class Node:
 
             current = child[action]
 
-        # if node hasn't been expanded#############
+        # if node hasn't been expanded
         if not current.child and current.outcome is None:
             # policy outputs results from the perspective of the next player
             # thus extra - sign is needed
