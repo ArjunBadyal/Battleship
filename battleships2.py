@@ -1,3 +1,4 @@
+#This file is the second Battleships file for alpha zero
 import numpy as np
 from copy import deepcopy
 from battleships3 import Battleships
