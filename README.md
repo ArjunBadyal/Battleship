@@ -1,11 +1,43 @@
 # Battleships
 MMATH Group Project: Battleships
 
-# Gameplay
-To play a game against random AI using our interactive engine you will need battleships.py, game.py and engines.py in the same  directory. Then run the following script from game.py:
+## Quick Start
 
-if __name__ == "__main__":
-    play(InteractiveEngine, RandomEngine)
+### Train the AI
+```bash
+python run_training.py
+```
+
+### Play Against the AI
+```bash
+python run_web_gui.py
+```
+Then open your browser to: **http://localhost:5000**
+
+### Desktop GUI
+```bash
+python run_desktop_gui.py
+```
+
+## Project Structure
+
+```
+battleship/
+├── src/                    # Main source code
+│   ├── ai/                # AI components  
+│   │   ├── Alpha0.py      # Neural network policy
+│   │   └── MCTS.py        # Monte Carlo Tree Search
+│   ├── core/              # Game logic
+│   │   ├── battleships.py # Full observability game
+│   │   └── battleships2.py# Partial observability game  
+│   ├── gui/               # User interfaces
+│   └── training/          # Training scripts
+├── models/                # Saved AI models
+│   ├── agent_best.mypolicy    # Best performing model
+│   └── agent_current.mypolicy # Latest trained model
+├── tests/                 # Test files and demos
+└── run_*.py              # Convenience scripts
+```
   
   
 
@@ -16,12 +48,20 @@ The AlphaZero implementation now supports partial observability, which is essent
 
 ## Implementation
 
-### Files
-- **battleships.py**: Original full observability implementation
-- **battleships2.py**: NEW - Partial observability implementation
-- **MCTS.py**: Updated to support both game types with hybrid approach
-- **training.py**: Updated to use partial observability during training
-- **demo_partial_observability.py**: Demonstration script
+### Current Architecture
+- **`src/core/battleships.py`**: Full observability implementation  
+- **`src/core/battleships2.py`**: Partial observability implementation
+- **`src/ai/MCTS.py`**: Monte Carlo Tree Search with hybrid approach
+- **`src/ai/Alpha0.py`**: Neural network policy for move prediction
+- **`src/training/training.py`**: Training loop with partial observability
+- **`run_training.py`**: Convenience script to start training
+
+### Model Management
+The training system now uses intelligent model management:
+- **`agent_current.mypolicy`**: Always contains the most recent model
+- **`agent_best.mypolicy`**: Only updated when a model achieves better performance
+- Models are automatically saved every 100 episodes
+- Training can resume from the best checkpoint
 
 ### Key Features
 
@@ -44,32 +84,36 @@ The system implements the required state swapping as follows:
 
 ## Usage
 
-### Training with Partial Observability
-```python
-from battleships import Battleships
-from battleships2 import Battleships2
-from MCTS import HybridMCTS
-import Alpha0
+### Training the AI
 
-# Create games
-full_game = Battleships()
-# ... place ships ...
-
-# Create hybrid MCTS for training
-policy = Alpha0.Policy()
-hybrid_mcts = HybridMCTS(full_game, policy)
-
-# Training loop uses partial observability for exploration
-hybrid_mcts.explore_with_partial_observability(n_iterations)
-next_move = hybrid_mcts.get_next_move()
+#### Quick Start
+```bash
+python run_training.py
 ```
 
-### Converting Between Game Types
-```python
-from MCTS import convert_to_partial_observability, convert_to_full_observability
+#### What happens during training:
+- Uses hybrid MCTS combining partial and full observability
+- Automatically saves best performing models
+- Logs training progress with loss metrics
+- GPU acceleration (if available)
+- 600 episodes by default (configurable)
 
-# Convert full to partial
-partial_game = convert_to_partial_observability(full_game)
+#### Monitor Training Progress
+Training logs are saved with timestamps in `src/training/training_YYYYMMDD_HHMMSS.log`
+
+```bash
+# Watch training progress in real-time
+tail -f src/training/training_*.log
+```
+
+### Playing Against the AI
+```bash
+# Web interface (recommended)
+python run_web_gui.py
+
+# Desktop interface
+python run_desktop_gui.py
+```
 
 # Generate consistent full game from partial observations
 full_game = partial_game.generate_consistent_game_state()
@@ -100,27 +144,57 @@ full_game = partial_game.generate_consistent_game_state()
 ✅ Proper handling of ship position uncertainty during tree search  
 
 ## Demo
-Run the demonstration script to see partial observability in action:
+Explore the partial observability implementation:
 ```bash
-python demo_partial_observability.py
+python tests/demos/demo_partial_observability.py
 ```
+
+## Development
+
+### Advanced Usage
+For developers wanting to use the AI components directly:
+
+```python
+# Load trained model
+from src.ai import Alpha0
+import torch
+
+policy = Alpha0.Policy()
+policy.load_state_dict(torch.load('models/agent_best.mypolicy'))
+policy.eval()
+
+# Use with MCTS for game playing
+from src.ai import MCTS
+from src.core.battleships import Battleships
+
+game = Battleships()
+# ... setup game ...
+mcts = MCTS.HybridMCTS(game, policy)
+next_move = mcts.get_next_move()
+```
+
+### Training Configuration
+Edit `src/training/training.py` to modify:
+- Number of episodes
+- Learning rate
+- Model save frequency
+- MCTS exploration parameters
 
 # Interactive GUI Games
 
 ## Play Against the AI
-We've created beautiful GUI interfaces where you can play against the trained AlphaZero AI by clicking on the board instead of typing coordinates.
+Multiple beautiful GUI interfaces where you can play against the trained AlphaZero AI:
 
 ### Quick Start - Play Now!
 ```bash
-python battleships_web.py
+python run_web_gui.py
 ```
 Then open your browser to: **http://localhost:5000**
 
-### Available Game Interfaces
-- **`battleships_web.py`** - **🌐 Web-based GUI (Recommended)** - Works in any browser, no display issues
-- **`battleships_gui.py`** - Desktop GUI with professional styling (requires display server)
-- **`play_simple_gui.py`** - Simple desktop clickable interface
-- **`play_gui.py`** - Advanced desktop GUI with manual ship placement
+### Available Interfaces
+- **`run_web_gui.py`** - **🌐 Web-based GUI (Recommended)** - Works in any browser
+- **`run_desktop_gui.py`** - Desktop GUI with professional styling  
+- **Legacy files** - `battleships_web.py`, `battleships_gui.py`, etc. (still functional)
 
 ### Features
 - 🎯 **Click-to-attack gameplay** - No typing coordinates!
@@ -132,11 +206,24 @@ Then open your browser to: **http://localhost:5000**
 - 🏆 **Victory/defeat notifications** with game over handling
 
 ### How to Play
-1. Run the web server: `python battleships_web.py`
+1. Run the web server: `python run_web_gui.py`
 2. Open your browser to http://localhost:5000
 3. Ships are automatically placed for both players
 4. Click on the "Enemy Waters" board to attack
 5. Watch the AI counter-attack on your fleet
 6. First to sink all enemy ships wins!
 
-For detailed instructions see [GUI_README.md](GUI_README.md).
+## Installation
+
+### Requirements
+```bash
+pip install -r requirements.txt
+```
+
+### Dependencies
+- PyTorch (for neural networks)
+- NumPy (for numerical operations)
+- Flask (for web interface)
+- Additional GUI dependencies (see requirements.txt)
+
+For detailed setup instructions see [GUI_README.md](GUI_README.md).
