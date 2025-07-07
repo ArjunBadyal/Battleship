@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚢 Battleships - Multi-Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .board-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            min-width: 280px;
+        }
+
+        .board-section.loading {
+            opacity: 0.6;
+            transform: scale(0.98);
+        }
+
+        .board-section.active-turn {
+            border: 3px solid #f39c12;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+            background: rgba(243, 156, 18, 0.1);
+        }
+
+        .board-section.ai-vs-ai {
+            border: 2px solid rgba(52, 152, 219, 0.6);
+        }
+
+        .board-title {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .board-title.current-turn {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: 30px repeat(10, 40px);
+            grid-template-rows: 30px repeat(10, 40px);
+            gap: 2px;
+            margin: 10px 0;
+        }
+
+        .coord-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #34495e;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Cell types */
+        .water { background-color: #3498db; }
+        .ship { background-color: #2c3e50; color: white; }
+        .hit { background-color: #e74c3c; color: white; }
+        .miss { background-color: #95a5a6; color: white; }
+        .unknown { background-color: #5d6d7e; }
+        .sunk { 
+            background-color: #8e44ad; 
+            color: white; 
+            border: 3px solid #9b59b6;
+            animation: sunk-pulse 2s infinite;
+        }
+
+        @keyframes sunk-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(142, 68, 173, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0); }
+        }
+
+        .enemy-cell:hover.unknown {
+            background-color: #f39c12;
+        }
+
+        .status-panel {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px auto;
+            max-width: 800px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .status-message {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            min-height: 30px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #219a52);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-cell {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #fff;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .board {
+                grid-template-columns: 25px repeat(10, 35px);
+                grid-template-rows: 25px repeat(10, 35px);
+            }
+            
+            .cell {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚢 BATTLESHIPS</h1>
+        <p id="game-mode">Multi-Player Naval Combat</p>
+    </div>
+
+    <div class="game-container">
+        <!-- Player 1 Fleet -->
+        <div class="board-section">
+            <div class="board-title" id="player1-title">🏠 PLAYER 1 FLEET</div>
+            <div class="board" id="your-board">
+                <!-- Board will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Player 2 Fleet -->
+        <div class="board-section">
+            <div class="board-title" id="player2-title">🎯 PLAYER 2 FLEET</div>
+            <div class="board" id="enemy-board">
+                <!-- Board will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div class="status-panel">
+        <div class="status-message" id="status-message">Welcome! Starting new game...</div>
+        
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-number" id="player1-hits">0</span>
+                <span class="stat-label" id="player1-hits-label">Player 1 Hits</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="player1-sunk">0</span>
+                <span class="stat-label" id="player1-sunk-label">Ships Sunk</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="player2-hits">0</span>
+                <span class="stat-label" id="player2-hits-label">Player 2 Hits</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="player2-sunk">0</span>
+                <span class="stat-label" id="player2-sunk-label">Ships Sunk</span>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-cell water"></div>
+                <span>Water</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-cell ship"></div>
+                <span>Your Ship</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-cell hit"></div>
+                <span>Hit</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-cell sunk"></div>
+                <span>Sunk Ship</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-cell miss"></div>
+                <span>Miss</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-cell unknown"></div>
+                <span>Unknown</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="window.location.href='/'">🏠 Menu</button>
+            <button class="btn btn-success" onclick="restartGame()">🆕 New Game</button>
+            <button class="btn" onclick="showHint()">💡 Hint</button>
+        </div>
+        
+        <div id="ai-status" style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;"></div>
+    </div>
+
+    <script>
+        let gameLoaded = false;
+
+        // Initialize game when page loads
+        window.onload = function() {
+            loadGame();
+        };
+
+        async function loadGame() {
+            setLoading(true);
+            document.getElementById('status-message').textContent = '🚢 Setting up new battle...';
+            
+            // Get player types from session storage
+            const player1Type = sessionStorage.getItem('player1_type') || 'human';
+            const player2Type = sessionStorage.getItem('player2_type') || 'alphazero';
+            
+            try {
+                const response = await fetch('/api/new_game', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        player1_type: player1Type,
+                        player2_type: player2Type
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update UI based on player types
+                    updatePlayerLabels(data.stats);
+                    updateGameMode(data.stats);
+                    
+                    createBoard('your-board', false);
+                    createBoard('enemy-board', shouldEnableClicks(data.stats));
+                    updateBoard('your-board', data.your_board);
+                    updateBoard('enemy-board', data.enemy_board);
+                    updateStats(data.stats);
+                    updateTurnIndicator(data.stats);
+                    document.getElementById('status-message').textContent = data.message;
+                    gameLoaded = true;
+                    
+                    // Start AI vs AI automation if needed
+                    if (!data.stats.is_human_turn) {
+                        setTimeout(makeAIMove, 1000);
+                    }
+                } else {
+                    document.getElementById('status-message').textContent = '❌ Failed to start game';
+                }
+            } catch (error) {
+                document.getElementById('status-message').textContent = '❌ Connection error';
+                console.error('Error:', error);
+            }
+            
+            setLoading(false);
+        }
+
+        function updatePlayerLabels(stats) {
+            document.getElementById('game-mode').textContent = `${stats.player1_name} vs ${stats.player2_name}`;
+            document.getElementById('player1-title').textContent = `🏠 ${stats.player1_name}`;
+            document.getElementById('player2-title').textContent = `🎯 ${stats.player2_name}`;
+            document.getElementById('player1-hits-label').textContent = `${stats.player1_name} Hits`;
+            document.getElementById('player1-sunk-label').textContent = `Ships Sunk by ${stats.player1_name}`;
+            document.getElementById('player2-hits-label').textContent = `${stats.player2_name} Hits`;
+            document.getElementById('player2-sunk-label').textContent = `Ships Sunk by ${stats.player2_name}`;
+        }
+
+        function shouldEnableClicks(stats) {
+            // Enable clicks if current player is human
+            return stats.is_human_turn;
+        }
+
+        async function makeAIMove() {
+            if (!gameLoaded) return;
+            
+            try {
+                const response = await fetch('/api/ai_move', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateBoard('your-board', data.your_board);
+                    updateBoard('enemy-board', data.enemy_board);
+                    updateStats(data.stats);
+                    updateTurnIndicator(data.stats);
+                    document.getElementById('status-message').textContent = data.message;
+                    
+                    // If game is not over and it's still an AI turn, continue
+                    if (!data.stats.game_over && !data.stats.is_human_turn) {
+                        setTimeout(makeAIMove, 1500);
+                    } else if (data.stats.game_over) {
+                        handleGameOver(data.stats.winner, data.message);
+                    }
+                }
+            } catch (error) {
+                console.error('AI move error:', error);
+            }
+        }
+
+        function createBoard(boardId, enableClicks = false) {
+            const board = document.getElementById(boardId);
+            board.innerHTML = '';
+
+            // Empty corner cell
+            const corner = document.createElement('div');
+            board.appendChild(corner);
+
+            // Column headers (A-J)
+            for (let j = 0; j < 10; j++) {
+                const header = document.createElement('div');
+                header.className = 'coord-label';
+                header.textContent = String.fromCharCode(65 + j);
+                board.appendChild(header);
+            }
+
+            // Rows with row headers and cells
+            for (let i = 0; i < 10; i++) {
+                // Row header
+                const rowHeader = document.createElement('div');
+                rowHeader.className = 'coord-label';
+                rowHeader.textContent = (i + 1).toString();
+                board.appendChild(rowHeader);
+
+                // Row cells
+                for (let j = 0; j < 10; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell unknown';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    
+                    if (enableClicks) {
+                        cell.className += ' enemy-cell';
+                        cell.onclick = () => attack(i, j);
+                    }
+                    
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function updateBoard(boardId, boardData) {
+            const board = document.getElementById(boardId);
+            const cells = board.querySelectorAll('.cell');
+            
+            let cellIndex = 0;
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    const cell = cells[cellIndex];
+                    const cellType = boardData[i][j];
+                    
+                    cell.className = 'cell ' + cellType;
+                    if (boardId === 'enemy-board') {
+                        cell.className += ' enemy-cell';
+                    }
+                    
+                    // Add emoji based on cell type
+                    switch(cellType) {
+                        case 'ship': cell.textContent = '⚓'; break;
+                        case 'hit': cell.textContent = '💥'; break;
+                        case 'sunk': cell.textContent = '💀'; break;
+                        case 'miss': cell.textContent = '💧'; break;
+                        default: cell.textContent = '';
+                    }
+                    
+                    cellIndex++;
+                }
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('player1-hits').textContent = stats.player1_hits;
+            document.getElementById('player2-hits').textContent = stats.player2_hits;
+            document.getElementById('player1-sunk').textContent = stats.player1_sunk_ships + '/5';
+            document.getElementById('player2-sunk').textContent = stats.player2_sunk_ships + '/5';
+        }
+
+        function setLoading(loading) {
+            const boards = document.querySelectorAll('.board-section');
+            boards.forEach(board => {
+                if (loading) {
+                    board.classList.add('loading');
+                } else {
+                    board.classList.remove('loading');
+                }
+            });
+        }
+
+        async function newGame() {
+            setLoading(true);
+            document.getElementById('status-message').textContent = '🚢 Setting up new battle...';
+            
+            try {
+                const response = await fetch('/api/new_game');
+                const data = await response.json();
+                
+                if (data.success) {
+                    createBoard('your-board', false);
+                    createBoard('enemy-board', true);
+                    updateBoard('your-board', data.your_board);
+                    updateBoard('enemy-board', data.enemy_board);
+                    updateStats(data.stats);
+                    updateTurnIndicator(data.stats);
+                    document.getElementById('status-message').textContent = data.message;
+                    gameLoaded = true;
+                } else {
+                    document.getElementById('status-message').textContent = '❌ Failed to start game';
+                }
+            } catch (error) {
+                document.getElementById('status-message').textContent = '❌ Connection error';
+                console.error('Error:', error);
+            }
+            
+            setLoading(false);
+        }
+
+        async function attack(row, col) {
+            if (!gameLoaded) return;
+            
+            setLoading(true);
+            const coord = String.fromCharCode(65 + col) + (row + 1);
+            document.getElementById('status-message').textContent = `🎯 Attacking ${coord}...`;
+            
+            try {
+                const response = await fetch('/api/attack', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ row: row, col: col })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateBoard('your-board', data.your_board);
+                    updateBoard('enemy-board', data.enemy_board);
+                    updateStats(data.stats);
+                    updateTurnIndicator(data.stats);
+                    
+                    // Show human move result
+                    document.getElementById('status-message').textContent = data.message;
+                    
+                    // Check if game is over
+                    if (data.stats.game_over) {
+                        handleGameOver(data.stats.winner, data.message);
+                    } else if (data.ai_message) {
+                        // If there's an AI response, show it after a delay
+                        setTimeout(() => {
+                            document.getElementById('status-message').textContent = data.ai_message;
+                            updateBoard('your-board', data.your_board);
+                            updateBoard('enemy-board', data.enemy_board);
+                            updateStats(data.stats);
+                            updateTurnIndicator(data.stats);
+                            
+                            // Check if AI move ended the game
+                            if (data.stats.game_over) {
+                                handleGameOver(data.stats.winner, data.ai_message);
+                            }
+                        }, 1500);
+                    } else if (!data.stats.is_human_turn) {
+                        // If next player is AI, trigger AI move
+                        setTimeout(makeAIMove, 1000);
+                    }
+                } else {
+                    document.getElementById('status-message').textContent = data.message;
+                }
+            } catch (error) {
+                document.getElementById('status-message').textContent = '❌ Attack failed';
+                console.error('Error:', error);
+            }
+            
+            setLoading(false);
+        }
+
+        function handleGameOver(winner, message) {
+            // Disable all enemy cells to prevent further attacks
+            const enemyCells = document.querySelectorAll('.enemy-cell');
+            enemyCells.forEach(cell => {
+                cell.onclick = null;
+                cell.style.cursor = 'not-allowed';
+                cell.style.opacity = '0.7';
+            });
+            
+            // Update the status message with game over info
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.innerHTML = message + '<br><br>' + 
+                '<button class="btn btn-success" onclick="restartGame()">🎮 New Game</button>';
+            
+            // Change background color based on winner
+            if (winner === 'human') {
+                document.body.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)'; // Green for victory
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)'; // Red for defeat
+            }
+        }
+
+        function showHint() {
+            const hints = [
+                "🎯 After a hit, try attacking adjacent squares to find ship orientation!",
+                "🚢 Ships are placed horizontally or vertically, never diagonally.",
+                "💡 Look for patterns in your hits to identify ship sizes.",
+                "⚓ Fleet: 1 Carrier (5), 1 Battleship (4), 2 Cruisers (3), 1 Destroyer (2)",
+                "🔍 Ships don't touch each other, not even diagonally.",
+                "💪 Clear areas systematically rather than shooting randomly!",
+                "💀 Purple cells with skulls indicate completely sunk ships!",
+                "🎆 Sunk ships will pulse with a purple glow animation.",
+                "📊 Track your progress with the ship counter - sink all 5 enemy ships to win!"
+            ];
+            
+            const randomHint = hints[Math.floor(Math.random() * hints.length)];
+            alert("💡 Tactical Hint\n\n" + randomHint);
+        }
+
+        async function restartGame() {
+            // Reset the background
+            document.body.style.background = 'linear-gradient(135deg, #3498db, #2c3e50)';
+            
+            // Re-enable enemy cells
+            const enemyCells = document.querySelectorAll('.enemy-cell');
+            enemyCells.forEach(cell => {
+                cell.style.cursor = 'pointer';
+                cell.style.opacity = '1';
+                // Restore click handler
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                cell.onclick = () => attack(row, col);
+            });
+            
+            // Start a new game
+            loadGame();
+        }
+
+        function updateGameMode(stats) {
+            // Add special styling for AI vs AI mode
+            const isAIvsAI = !stats.player1_name.includes('Human') && !stats.player2_name.includes('Human');
+            const board1 = document.querySelector('#your-board').parentElement;
+            const board2 = document.querySelector('#enemy-board').parentElement;
+            
+            if (isAIvsAI) {
+                board1.classList.add('ai-vs-ai');
+                board2.classList.add('ai-vs-ai');
+                document.getElementById('player1-title').textContent = `🤖 ${stats.player1_name}'S FLEET`;
+                document.getElementById('player2-title').textContent = `🤖 ${stats.player2_name}'S FLEET`;
+            } else {
+                board1.classList.remove('ai-vs-ai');
+                board2.classList.remove('ai-vs-ai');
+            }
+        }
+
+        function updateTurnIndicator(stats) {
+            const board1 = document.querySelector('#your-board').parentElement;
+            const board2 = document.querySelector('#enemy-board').parentElement;
+            const title1 = document.getElementById('player1-title');
+            const title2 = document.getElementById('player2-title');
+            
+            // Remove previous turn indicators
+            board1.classList.remove('active-turn');
+            board2.classList.remove('active-turn');
+            title1.classList.remove('current-turn');
+            title2.classList.remove('current-turn');
+            
+            if (!stats.game_over) {
+                // Determine which player's turn it is
+                const isPlayer1Turn = stats.current_player === 1;
+                
+                if (isPlayer1Turn) {
+                    board1.classList.add('active-turn');
+                    title1.classList.add('current-turn');
+                    title1.textContent = title1.textContent.replace('🤖', '⚡🤖').replace('🏠', '⚡🏠');
+                } else {
+                    board2.classList.add('active-turn');
+                    title2.classList.add('current-turn');
+                    title2.textContent = title2.textContent.replace('🤖', '⚡🤖').replace('🎯', '⚡🎯');
+                }
+            }
+        }
+
+        // Auto-refresh game state every 10 seconds (in case of connection issues)
+        setInterval(async () => {
+            if (!gameLoaded) return;
+            
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateBoard('your-board', data.your_board);
+                    updateBoard('enemy-board', data.enemy_board);
+                    updateStats(data.stats);
+                }
+            } catch (error) {
+                // Silently fail - don't disrupt gameplay
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

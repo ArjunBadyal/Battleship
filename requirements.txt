@@ -1,0 +1,18 @@
+# Battleships AlphaZero AI - Python Dependencies
+
+# Core ML/AI libraries
+torch>=1.9.0
+numpy>=1.21.0
+
+# Web interface
+flask>=2.0.0
+
+# GUI (optional - for desktop interfaces)
+tkinter  # Usually included with Python
+
+# Development and testing (optional)
+pytest>=6.0.0  # For running tests
+matplotlib>=3.5.0  # For training monitoring and plots
+
+# Note: Some desktop GUI components may require additional system libraries
+# For web interface only, torch, numpy, and flask are sufficient

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battleships - Choose Players</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .menu-container {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+
+        .player-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .player-config {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .player-config h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #f39c12;
+        }
+
+        .player-option {
+            margin: 15px 0;
+        }
+
+        .player-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .player-option label:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .player-option input[type="radio"] {
+            margin-right: 12px;
+            scale: 1.2;
+        }
+
+        .player-option .option-info {
+            text-align: left;
+        }
+
+        .option-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .option-desc {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .start-button:active {
+            transform: translateY(0);
+        }
+
+        .quick-start {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-start h4 {
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .quick-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .quick-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .player-selection {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .menu-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <h1>🚢 BATTLESHIPS</h1>
+        <p class="subtitle">Choose your combatants for the ultimate naval warfare!</p>
+        
+        <div class="player-selection">
+            <div class="player-config">
+                <h3>⚓ Player 1</h3>
+                <div class="player-option">
+                    <label>
+                        <input type="radio" name="player1" value="human" checked>
+                        <div class="option-info">
+                            <div class="option-title">👤 Human</div>
+                            <div class="option-desc">You control this player</div>
+                        </div>
+                    </label>
+                </div>
+                <div class="player-option">
+                    <label>
+                        <input type="radio" name="player1" value="alphazero">
+                        <div class="option-info">
+                            <div class="option-title">🧠 AlphaZero AI</div>
+                            <div class="option-desc">Advanced neural network</div>
+                        </div>
+                    </label>
+                </div>
+                <div class="player-option">
+                    <label>
+                        <input type="radio" name="player1" value="random">
+                        <div class="option-info">
+                            <div class="option-title">🎲 Random AI</div>
+                            <div class="option-desc">Unpredictable moves</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="player-config">
+                <h3>⚔️ Player 2</h3>
+                <div class="player-option">
+                    <label>
+                        <input type="radio" name="player2" value="human">
+                        <div class="option-info">
+                            <div class="option-title">👤 Human</div>
+                            <div class="option-desc">You control this player</div>
+                        </div>
+                    </label>
+                </div>
+                <div class="player-option">
+                    <label>
+                        <input type="radio" name="player2" value="alphazero" checked>
+                        <div class="option-info">
+                            <div class="option-title">🧠 AlphaZero AI</div>
+                            <div class="option-desc">Advanced neural network</div>
+                        </div>
+                    </label>
+                </div>
+                <div class="player-option">
+                    <label>
+                        <input type="radio" name="player2" value="random">
+                        <div class="option-info">
+                            <div class="option-title">🎲 Random AI</div>
+                            <div class="option-desc">Unpredictable moves</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <button class="start-button" onclick="startGame()">🎮 Start Battle</button>
+
+        <div class="quick-start">
+            <h4>⚡ Quick Start Options</h4>
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="quickStart('human', 'alphazero')">👤 vs 🧠 Classic</button>
+                <button class="quick-btn" onclick="quickStart('alphazero', 'alphazero')">🧠 vs 🧠 AI Battle</button>
+                <button class="quick-btn" onclick="quickStart('human', 'human')">👤 vs 👤 Local Multiplayer</button>
+                <button class="quick-btn" onclick="quickStart('alphazero', 'random')">🧠 vs 🎲 AI Training</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getSelectedPlayers() {
+            const player1 = document.querySelector('input[name="player1"]:checked').value;
+            const player2 = document.querySelector('input[name="player2"]:checked').value;
+            return { player1, player2 };
+        }
+
+        function quickStart(player1, player2) {
+            // Set the radio buttons
+            document.querySelector(`input[name="player1"][value="${player1}"]`).checked = true;
+            document.querySelector(`input[name="player2"][value="${player2}"]`).checked = true;
+            
+            // Start the game
+            startGame();
+        }
+
+        async function startGame() {
+            const { player1, player2 } = getSelectedPlayers();
+            
+            try {
+                // Store player types in session storage for the game page
+                sessionStorage.setItem('player1_type', player1);
+                sessionStorage.setItem('player2_type', player2);
+                
+                // Redirect to game page
+                window.location.href = '/game';
+            } catch (error) {
+                alert('Failed to start game: ' + error.message);
+            }
+        }
+
+        // Add some visual feedback for selections
+        document.addEventListener('change', function(e) {
+            if (e.target.type === 'radio') {
+                // Remove active class from all options in this group
+                const groupName = e.target.name;
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(radio => {
+                    radio.closest('.player-option').style.background = '';
+                });
+                
+                // Add active class to selected option
+                e.target.closest('.player-option').style.background = 'rgba(52, 152, 219, 0.3)';
+            }
+        });
+
+        // Initialize visual state
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                radio.closest('.player-option').style.background = 'rgba(52, 152, 219, 0.3)';
+            });
+        });
+    </script>
+</body>
+</html>

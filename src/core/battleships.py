@@ -9,9 +9,9 @@ class Battleships:
         # make sure game is well defined
 
         self.score = None
-        self.state = np.zeros([2, 2, 10, 10], dtype=np.float)
+        self.state = np.zeros([2, 2, 10, 10], dtype=np.float32)
         self.ships = [5, 4, 3, 3, 2]  # don't modify me please
-        self.ships_remaining = np.tile(np.array([5, 4, 3, 3, 2], dtype=np.float), (2, 1))
+        self.ships_remaining = np.tile(np.array([5, 4, 3, 3, 2], dtype=np.float32), (2, 1))
         self.ship_positions = {}, {}  # filled in 'place'
         self.player = 1  # used for encoding score and takes values +-1
         self.player_state = 0  # used to index the state space and takes values 0 or 1
@@ -136,8 +136,6 @@ class Battleships:
         indices = np.moveaxis(np.indices(self.state[self.player_state, 1].shape), 0, -1)
         return indices[self.state[self.player_state, 1] == 0]
 
-    # TODO
-    """
     def available_mask(self):
-        return (np.abs(self.state) != 1).astype(np.uint8)
-    """
+        """Return mask of available moves (where player hasn't fired yet)"""
+        return (self.state[self.player_state, 1] == 0).astype(np.uint8)
