@@ -9,10 +9,11 @@ This project implements an AlphaZero agent for playing Battleships with partial 
 Battleship/
 ├── README.md                   # Main project documentation
 ├── LICENSE                     # Project license
-├── requirements.txt            # Python dependencies (if created)
+├── requirements.txt            # Python dependencies
 ├── run_web_gui.py             # Convenience script to run web interface
 ├── run_training.py            # Convenience script to run training
 ├── run_desktop_gui.py         # Convenience script to run desktop GUI
+├── AlphaZero_Battleship.ipynb # Jupyter notebook for interactive testing
 │
 ├── src/                       # Source code
 │   ├── __init__.py

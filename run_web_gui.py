@@ -19,4 +19,4 @@ if __name__ == '__main__':
     print("🎯 Choose your game mode from the menu!")
     
     # Run the Flask app
-    battleships_web.app.run(host='0.0.0.0', port=5000, debug=True)
+    battleships_web.app.run(host='0.0.0.0', port=5000, debug=False)

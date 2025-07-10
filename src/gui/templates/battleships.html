@@ -546,19 +546,41 @@
             setLoading(true);
             document.getElementById('status-message').textContent = '🚢 Setting up new battle...';
             
+            // Get player types from session storage
+            const player1Type = sessionStorage.getItem('player1_type') || 'human';
+            const player2Type = sessionStorage.getItem('player2_type') || 'alphazero';
+            
             try {
-                const response = await fetch('/api/new_game');
+                const response = await fetch('/api/new_game', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        player1_type: player1Type,
+                        player2_type: player2Type
+                    })
+                });
                 const data = await response.json();
                 
                 if (data.success) {
+                    // Update UI based on player types
+                    updatePlayerLabels(data.stats);
+                    updateGameMode(data.stats);
+                    
                     createBoard('your-board', false);
-                    createBoard('enemy-board', true);
+                    createBoard('enemy-board', shouldEnableClicks(data.stats));
                     updateBoard('your-board', data.your_board);
                     updateBoard('enemy-board', data.enemy_board);
                     updateStats(data.stats);
                     updateTurnIndicator(data.stats);
                     document.getElementById('status-message').textContent = data.message;
                     gameLoaded = true;
+                    
+                    // Start AI vs AI automation if needed
+                    if (!data.stats.is_human_turn) {
+                        setTimeout(makeAIMove, 1000);
+                    }
                 } else {
                     document.getElementById('status-message').textContent = '❌ Failed to start game';
                 }
@@ -723,11 +745,9 @@
                 if (isPlayer1Turn) {
                     board1.classList.add('active-turn');
                     title1.classList.add('current-turn');
-                    title1.textContent = title1.textContent.replace('🤖', '⚡🤖').replace('🏠', '⚡🏠');
                 } else {
                     board2.classList.add('active-turn');
                     title2.classList.add('current-turn');
-                    title2.textContent = title2.textContent.replace('🤖', '⚡🤖').replace('🎯', '⚡🎯');
                 }
             }
         }

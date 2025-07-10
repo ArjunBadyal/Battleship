@@ -18,4 +18,4 @@ if __name__ == '__main__':
     print("📊 Monitor training progress with the logs")
     
     # Import and run the training script
-    from src.training import training
+    import training.training

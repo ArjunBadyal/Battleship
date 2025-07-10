@@ -573,4 +573,4 @@ if __name__ == '__main__':
     print("🌐 Open your browser and go to: http://localhost:5000")
     print("🎯 Click enemy waters to attack!")
     
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
