@@ -50,13 +50,21 @@ class WebBattleshipsGame:
     def load_ai(self):
         """Load the trained AI policy"""
         try:
-            model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', '6-6-4-pie-0.mypolicy')
+            # Try to load the best model first
+            model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', 'agent_best.mypolicy')
             if Alpha0 and os.path.exists(model_path):
-                self.ai_policy = torch.load(model_path, map_location='cpu')
+                self.ai_policy = torch.load(model_path, map_location='cpu', weights_only=False)
                 self.ai_policy.eval()
                 self.ai_status = "✅ AI Champion loaded!"
             else:
-                self.ai_status = "⚠️ AI not found - using random strategy"
+                # Fall back to current model
+                model_path = os.path.join(os.path.dirname(__file__), '..', '..', 'models', 'agent_current.mypolicy')
+                if Alpha0 and os.path.exists(model_path):
+                    self.ai_policy = torch.load(model_path, map_location='cpu', weights_only=False)
+                    self.ai_policy.eval()
+                    self.ai_status = "✅ AI loaded!"
+                else:
+                    self.ai_status = "⚠️ AI not found - using random strategy"
         except Exception as e:
             self.ai_status = f"⚠️ AI error: {str(e)}"
     

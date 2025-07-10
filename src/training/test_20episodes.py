@@ -110,7 +110,7 @@ if os.path.exists(best_model_path):
         log_message("Starting training with fresh model")
 
 
-episodes = 600
+episodes = 20
 
 log_message(f"Starting training for {episodes} episodes...")
 log_message(f"Log file: {log_path}")

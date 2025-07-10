@@ -56,9 +56,17 @@ class Policy(nn.Module):
         if x.is_cuda:
             avail = avail.cuda()
         avail = avail.view(-1, 100)
+        
+        # Improved numerical stability
         maxa = torch.max(a)
-        exp = avail * torch.exp(a - maxa)
-        prob = exp / torch.sum(exp)
+        exp = avail * torch.exp(torch.clamp(a - maxa, min=-50, max=50))  # Clamp to prevent overflow
+        sum_exp = torch.sum(exp)
+        
+        # Prevent division by zero
+        if sum_exp == 0:
+            sum_exp = 1e-8
+        
+        prob = exp / sum_exp
 
         # value head
         value = self.tanh_value(self.fc_value2(F.leaky_relu(self.fc_value1(y))))

@@ -217,12 +217,19 @@ class BattleshipsGame:
     def load_ai(self):
         """Load the trained AI policy"""
         try:
-            self.ai_policy = torch.load('6-6-4-pie-0.mypolicy', map_location='cpu')
+            # Try to load the best model first
+            self.ai_policy = torch.load('models/agent_best.mypolicy', map_location='cpu', weights_only=False)
             self.ai_policy.eval()
             self.update_status("✅ AI Champion loaded and ready for battle!")
         except Exception as e:
-            self.update_status("⚠️ AI not found - using random strategy")
-            self.ai_policy = None
+            try:
+                # Fall back to current model if best doesn't exist
+                self.ai_policy = torch.load('models/agent_current.mypolicy', map_location='cpu', weights_only=False)
+                self.ai_policy.eval()
+                self.update_status("✅ AI loaded and ready for battle!")
+            except Exception as e2:
+                self.update_status("⚠️ AI not found - using random strategy")
+                self.ai_policy = None
     
     def new_game(self):
         """Start a new game"""

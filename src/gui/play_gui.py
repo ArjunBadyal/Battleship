@@ -188,12 +188,19 @@ class BattleshipsGUI:
     def load_ai(self):
         """Load the trained AI policy"""
         try:
-            self.ai_policy = torch.load('6-6-4-pie-0.mypolicy', map_location='cpu')
+            # Try to load the best model first
+            self.ai_policy = torch.load('models/agent_best.mypolicy', map_location='cpu', weights_only=False)
             self.ai_policy.eval()
             self.status_label.config(text="✅ AI loaded successfully! Ready to play.")
         except Exception as e:
-            self.status_label.config(text=f"⚠️ Could not load AI: {e}")
-            self.ai_policy = None
+            try:
+                # Fall back to current model if best doesn't exist
+                self.ai_policy = torch.load('models/agent_current.mypolicy', map_location='cpu', weights_only=False)
+                self.ai_policy.eval()
+                self.status_label.config(text="✅ AI loaded successfully! Ready to play.")
+            except Exception as e2:
+                self.status_label.config(text=f"⚠️ Could not load AI: {e2}")
+                self.ai_policy = None
     
     def start_new_game(self):
         """Start a new game"""
