@@ -137,12 +137,6 @@ full_game = partial_game.generate_consistent_game_state()
 - Exploration uses `battleships2.py` for uncertainty handling
 - Final decisions use `battleships.py` for accuracy
 
-## Solved Issues
-✅ State swapping implemented with random re-shuffling while maintaining hit/miss consistency  
-✅ MCTS exploration uses partial observability to prevent loss dropping to zero  
-✅ Normal game used for actual moves while exploration uses re-sampling style game  
-✅ Proper handling of ship position uncertainty during tree search  
-
 ## Demo
 Explore the partial observability implementation:
 ```bash
@@ -190,20 +184,6 @@ Multiple beautiful GUI interfaces where you can play against the trained AlphaZe
 python run_web_gui.py
 ```
 Then open your browser to: **http://localhost:5000**
-
-### Available Interfaces
-- **`run_web_gui.py`** - **🌐 Web-based GUI (Recommended)** - Works in any browser
-- **`run_desktop_gui.py`** - Desktop GUI with professional styling  
-- **Legacy files** - `battleships_web.py`, `battleships_gui.py`, etc. (still functional)
-
-### Features
-- 🎯 **Click-to-attack gameplay** - No typing coordinates!
-- 🎨 **Beautiful modern interface** with colors and emojis
-- 📊 **Real-time statistics** showing hits for both players
-- 💡 **Built-in hint system** for tactical advice
-- 🚢 **Visual ship placement** with automatic setup
-- 🤖 **Smart AI opponent** using the trained AlphaZero model
-- 🏆 **Victory/defeat notifications** with game over handling
 
 ### How to Play
 1. Run the web server: `python run_web_gui.py`
